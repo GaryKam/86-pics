@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/navigation"
+    app:startDestination="@id/title_fragment">
+
+    <fragment
+        android:id="@+id/title_fragment"
+        android:name="io.github.gary.eightysixpics.navigation.TitleFragment"
+        android:label="TitleFragment" >
+        <action
+            android:id="@+id/action_title_fragment_to_posts_fragment"
+            app:destination="@id/posts_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/posts_fragment"
+        android:name="io.github.gary.eightysixpics.navigation.PostsFragment"
+        android:label="PostsFragment" />
+</navigation>

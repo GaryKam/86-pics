@@ -1,8 +1,9 @@
 package io.github.gary.eightysixpics
 
 import android.os.Bundle
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import io.github.gary.eightysixpics.databinding.ActivityMainBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -10,9 +11,16 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding: ActivityMainBinding =
+            DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        val button = findViewById<Button>(R.id.button)
-        button.setOnClickListener { GlobalScope.launch(Dispatchers.IO) { RedditApi.retrieveToken() } }
+        GlobalScope.launch(Dispatchers.Default) {
+            RedditApi.retrieveToken()
+            val posts = RedditApi.loadPosts()
+
+            runOnUiThread {
+                binding.postsRecyclerView.adapter = PostAdapter(posts)
+            }
+        }
     }
 }
