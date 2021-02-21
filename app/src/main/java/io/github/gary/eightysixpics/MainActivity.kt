@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
             DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         GlobalScope.launch(Dispatchers.Default) {
-            RedditApi.retrieveToken()
+            //RedditApi.retrieveToken()
             val posts = RedditApi.loadPosts()
 
             runOnUiThread {

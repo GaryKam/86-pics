@@ -1,6 +1,7 @@
 package io.github.gary.eightysixpics
 
 import android.graphics.BitmapFactory
+import androidx.core.graphics.scale
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.net.HttpURLConnection
@@ -10,10 +11,13 @@ import java.util.*
 object RedditApi {
     /** Reddit URL to get an access token. */
     private const val BASE_TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
+
     /** Grant type for application-only authentication. */
     private const val GRANT_TYPE = "https://oauth.reddit.com/grants/installed_client"
+
     /** Randomly generated UUID to identify the user's device. */
     private val DEVICE_ID = UUID.randomUUID().toString()
+
     /** ID of the app assigned by Reddit. */
     private const val CLIENT_ID = "fUnN03g91GD3yA:"
     private var accessToken = ""
@@ -56,13 +60,14 @@ object RedditApi {
                     if (post.getString("kind") == "t3") {
                         println(post)
                         val postData = post.getJSONObject("data")
-                        val thumbnail = postData.getString("thumbnail")
-                        val thumbnailImage = when (thumbnail) {
-                            "self", "default" -> null
-                            else -> URL(thumbnail).openConnection().getInputStream().use {
-                                BitmapFactory.decodeStream(it)
+                        val thumbnailImage =
+                            when (val thumbnail = postData.getString("thumbnail")) {
+                                "self", "default" -> continue
+                                else -> URL(thumbnail).openConnection().getInputStream().use {
+                                    val bitmap = BitmapFactory.decodeStream(it)
+                                    bitmap.scale(150, 150)
+                                }
                             }
-                        }
                         posts.add(
                             Post(
                                 postData.getString("author"),
