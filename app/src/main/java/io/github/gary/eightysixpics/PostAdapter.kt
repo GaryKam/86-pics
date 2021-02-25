@@ -5,34 +5,49 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 
-class PostAdapter(private val posts: List<Post>) :
-    RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
+class PostAdapter(
+    private val posts: List<Post>,
+    private val postItemListener: PostItemListener
+) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         return PostViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_post, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_post, parent, false),
         )
     }
 
-    override fun getItemCount(): Int {
-        return posts.size
-    }
+    override fun getItemCount() = posts.size
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
         holder.thumbnailImage.setImageBitmap(post.thumbnail)
         holder.titleText.text = post.title
-        holder.upvotesText.text = post.upvotes.toString()
+        holder.scoreText.text = post.score.toString()
+        holder.awardText.text = post.awards.toString()
+        // Hide the award info if the post has not received any awards.
+        if (post.awards == 0) {
+            holder.awardText.isVisible = false
+            holder.awardImage.isVisible = false
+        }
     }
 
-    inner class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class PostViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         val thumbnailImage: ImageView = view.findViewById(R.id.image_thumbnail)
         val titleText: TextView = view.findViewById(R.id.text_title)
-        val upvotesText: TextView = view.findViewById(R.id.text_upvotes)
+        val scoreText: TextView = view.findViewById(R.id.text_score)
+        val awardText: TextView = view.findViewById(R.id.text_award)
+        val awardImage: ImageView = view.findViewById(R.id.image_award)
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        override fun onClick(view: View?) = postItemListener.onClick(adapterPosition)
+    }
+
+    interface PostItemListener {
+        fun onClick(position: Int)
     }
 }
-
-
-

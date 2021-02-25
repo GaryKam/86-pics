@@ -1,6 +1,7 @@
 package io.github.gary.eightysixpics
 
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.core.graphics.scale
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -20,71 +21,108 @@ object RedditApi {
 
     /** ID of the app assigned by Reddit. */
     private const val CLIENT_ID = "fUnN03g91GD3yA:"
+
+    /** A token that allows us to create Reddit API requests. */
     private var accessToken = ""
 
+    /**
+     * Generates and saves a temporary access token from Reddit.
+     * If an error occurs, the token will be set to an empty String.
+     */
     fun retrieveToken() {
         val tokenUrl = URL("$BASE_TOKEN_URL?grant_type=$GRANT_TYPE&device_id=$DEVICE_ID&scope=read")
         val connection = tokenUrl.openConnection() as? HttpURLConnection
-        if (connection != null) {
-            connection.requestMethod = "POST"
-            connection.setRequestProperty(
+        accessToken = connection?.run {
+            requestMethod = "POST"
+            setRequestProperty(
                 "Authorization",
                 "Basic ${Base64.getEncoder().encodeToString(CLIENT_ID.toByteArray())}"
             )
-            connection.setRequestProperty(
+            setRequestProperty(
                 "Content-Type",
                 "application/x-www-form-urlencoded"
             )
-            val data =
-                JSONObject(connection.inputStream.bufferedReader().use(BufferedReader::readText))
-            println(data)
-            accessToken = data.getString("access_token")
-        } else {
-            println("${connection?.responseMessage}")
-            accessToken = ""
-        }
+            val data = JSONObject(inputStream.bufferedReader().use(BufferedReader::readText))
+            data.getString("access_token")
+        } ?: ""
+        // todo: remove
+        Log.d("RedditApi", "token: $accessToken")
     }
 
+    /**
+     * Creates a list of [Post] items by parsing the Reddit JSON.
+     */
     fun loadPosts(): List<Post> {
-        if (accessToken.isNotEmpty()) {
-            val url = URL("https://oauth.reddit.com/r/ft86/hot")
-            val connection = url.openConnection() as? HttpURLConnection
-            if (connection != null) {
-                connection.setRequestProperty("Authorization", "Bearer $accessToken")
-                val data = connection.inputStream.bufferedReader().use(BufferedReader::readText)
-                val json = JSONObject(data)
-                val children = json.getJSONObject("data").getJSONArray("children")
-                val posts = mutableListOf<Post>()
-                for (i in 0 until children.length()) {
-                    val post = children[i] as JSONObject
-                    if (post.getString("kind") == "t3") {
-                        println(post)
-                        val postData = post.getJSONObject("data")
-                        val thumbnailImage =
-                            when (val thumbnail = postData.getString("thumbnail")) {
-                                "self", "default" -> continue
-                                else -> URL(thumbnail).openConnection().getInputStream().use {
-                                    val bitmap = BitmapFactory.decodeStream(it)
-                                    bitmap.scale(150, 150)
-                                }
-                            }
-                        posts.add(
-                            Post(
-                                postData.getString("author"),
-                                postData.getString("title"),
-                                thumbnailImage,
-                                postData.getInt("ups"),
-                                postData.getInt("downs"),
-                                postData.getInt("total_awards_received"),
-                                postData.getInt("num_comments"),
-                                postData.getLong("created_utc")
-                            )
-                        )
-                    }
+        if (accessToken.isEmpty()) {
+            return emptyList()
+        }
+        val posts = mutableListOf<Post>()
+        val url = URL("https://oauth.reddit.com/r/ft86/hot.json?raw_json=1")
+        val connection = url.openConnection() as? HttpURLConnection
+        if (connection != null) {
+            connection.setRequestProperty("Authorization", "Bearer $accessToken")
+            val data = connection.inputStream.bufferedReader().use(BufferedReader::readText)
+            val json = JSONObject(data)
+            val children = json.getJSONObject("data").getJSONArray("children")
+            for (i in 0 until children.length()) {
+                val post = children[i] as JSONObject
+                // todo: remove
+                Log.d("RedditApi", post.toString())
+                // t3 is the prefix used by Reddit for objects of type "Link".
+                if (post.getString("kind") != "t3") {
+                    continue
                 }
-                return posts
+                val data = post.getJSONObject("data")
+                val thumbnail = data.getString("thumbnail")
+                // If a thumbnail does not exist, then there are no images in the forum post.
+                if (!thumbnail.endsWith(".jpg")) {
+                    continue
+                }
+                // Scale the thumbnail to fit inside our card view.
+                val thumbnailImage =
+                    URL(data.getString("thumbnail")).openConnection().getInputStream()
+                        .use {
+                            BitmapFactory.decodeStream(it).scale(150, 150, false)
+                        }
+                val images = loadImages(data)
+                posts.add(
+                    Post(
+                        thumbnailImage,
+                        data.getString("author"),
+                        data.getString("title"),
+                        images,
+                        data.getInt("score"),
+                        data.getInt("total_awards_received"),
+                        data.getLong("created_utc")
+                    )
+                )
             }
         }
-        return emptyList()
+        return posts
+    }
+
+    /**
+     * Returns a URL for each image in the forum post.
+     */
+    private fun loadImages(json: JSONObject): List<String> {
+        val images = mutableListOf<String>()
+        if (json.getString("url").endsWith(".jpg")) {
+            // The post is simply a standalone image.
+            images.add(json.getString("url"))
+        } else if (json.has("is_gallery")) {
+            // The post contains a gallery of images.
+            val mediaData = json.getJSONObject("media_metadata")
+            val galleryItems = json.getJSONObject("gallery_data").getJSONArray("items")
+            for (i in 0 until galleryItems.length()) {
+                val item = galleryItems[i] as JSONObject
+                val media = mediaData.getJSONObject(item.getString("media_id"))
+                if (media.getString("status") == "valid" && media.getString("e") == "Image") {
+                    val resolutions = media.getJSONArray("p")
+                    val image = resolutions.getJSONObject(resolutions.length() - 1).getString("u")
+                    images.add(image)
+                }
+            }
+        }
+        return images
     }
 }
