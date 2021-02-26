@@ -9,6 +9,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
+/**
+ * Displays a list of forum posts.
+ * Clicking a post will navigate to a [PostActivity].
+ */
 class MainActivity : AppCompatActivity(), PostAdapter.PostItemListener {
     private lateinit var posts: List<Post>
 
