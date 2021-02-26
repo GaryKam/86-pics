@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 
 /**
  * An adapter for the list of forum posts.
@@ -25,7 +26,7 @@ class PostAdapter(
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
-        holder.thumbnailImage.setImageBitmap(post.thumbnail)
+        Picasso.get().load(post.thumbnail).into(holder.thumbnailImage)
         holder.titleText.text = post.title
         holder.scoreText.text = post.score.toString()
         holder.awardText.text = post.awards.toString()

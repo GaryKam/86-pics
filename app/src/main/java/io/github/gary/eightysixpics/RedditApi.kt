@@ -1,8 +1,6 @@
 package io.github.gary.eightysixpics
 
-import android.graphics.BitmapFactory
 import android.util.Log
-import androidx.core.graphics.scale
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.net.HttpURLConnection
@@ -78,19 +76,12 @@ object RedditApi {
                 if (!thumbnail.endsWith(".jpg")) {
                     continue
                 }
-                // Scale the thumbnail to fit inside our card view.
-                val thumbnailImage =
-                    URL(data.getString("thumbnail")).openConnection().getInputStream()
-                        .use {
-                            BitmapFactory.decodeStream(it).scale(150, 150, false)
-                        }
-                val images = loadImages(data)
                 posts.add(
                     Post(
-                        thumbnailImage,
+                        data.getString("thumbnail"),
                         data.getString("author"),
                         data.getString("title"),
-                        images,
+                        loadImages(data),
                         data.getInt("score"),
                         data.getInt("total_awards_received"),
                         data.getLong("created_utc")
