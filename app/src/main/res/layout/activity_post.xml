@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingHorizontal="6dp">
 
         <TextView
             android:id="@+id/text_title"
@@ -17,7 +19,8 @@
             android:id="@+id/grid_images"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:numColumns="1" />
+            android:numColumns="1"
+            android:verticalSpacing="6dp" />
 
     </LinearLayout>
 </layout>

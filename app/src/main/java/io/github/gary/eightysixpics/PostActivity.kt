@@ -17,7 +17,8 @@ import io.github.gary.eightysixpics.databinding.ActivityPostBinding
 class PostActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding: ActivityPostBinding = DataBindingUtil.setContentView(this, R.layout.activity_post)
+        val binding: ActivityPostBinding =
+            DataBindingUtil.setContentView(this, R.layout.activity_post)
 
         binding.textTitle.text = intent.getStringExtra("title")
 
@@ -27,8 +28,10 @@ class PostActivity : AppCompatActivity() {
 
     inner class PostGridAdapter(private val images: Array<String>) : BaseAdapter() {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val view = convertView ?: LayoutInflater.from(parent?.context).inflate(R.layout.item_image, parent, false)
-            Picasso.get().load(images[position]).into(view as ImageView)
+            val view = convertView ?: LayoutInflater.from(parent?.context)
+                .inflate(R.layout.item_image, parent, false)
+            val imageView: ImageView = view.findViewById(R.id.image)
+            Picasso.get().load(images[position]).into(imageView)
             return view
         }
 
