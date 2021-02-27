@@ -12,10 +12,10 @@ import com.squareup.picasso.Picasso
 /**
  * An adapter for the list of forum posts.
  */
-class PostAdapter(
+class PostRecyclerAdapter(
     private val posts: List<Post>,
     private val postItemListener: PostItemListener
-) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
+) : RecyclerView.Adapter<PostRecyclerAdapter.PostViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         return PostViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.item_post, parent, false),

@@ -10,10 +10,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 /**
- * Displays a list of forum posts.
+ * Displays rows of forum posts.
  * Clicking a post will navigate to a [PostActivity].
  */
-class MainActivity : AppCompatActivity(), PostAdapter.PostItemListener {
+class MainActivity : AppCompatActivity(), PostRecyclerAdapter.PostItemListener {
     private lateinit var posts: List<Post>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity(), PostAdapter.PostItemListener {
             posts = RedditApi.loadPosts()
 
             runOnUiThread {
-                binding.postsRecyclerView.adapter = PostAdapter(posts, this@MainActivity)
+                binding.postsRecyclerView.adapter = PostRecyclerAdapter(posts, this@MainActivity)
             }
         }
     }
