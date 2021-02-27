@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso
  * An adapter for the list of forum posts.
  */
 class PostRecyclerAdapter(
-    private val posts: List<Post>,
+    private var posts: List<Post>,
     private val postItemListener: PostItemListener
 ) : RecyclerView.Adapter<PostRecyclerAdapter.PostViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -35,6 +35,11 @@ class PostRecyclerAdapter(
             holder.awardText.isVisible = false
             holder.awardImage.isVisible = false
         }
+    }
+
+    fun updatePosts(updatedPosts: List<Post>) {
+        posts = updatedPosts
+        notifyDataSetChanged()
     }
 
     inner class PostViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {

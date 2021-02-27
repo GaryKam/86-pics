@@ -53,12 +53,12 @@ object RedditApi {
     /**
      * Creates a list of [Post] items by parsing the Reddit JSON.
      */
-    fun loadPosts(): List<Post> {
+    fun loadPosts(sorting: String = ""): List<Post> {
         if (accessToken.isEmpty()) {
             return emptyList()
         }
         val posts = mutableListOf<Post>()
-        val url = URL("https://oauth.reddit.com/r/ft86/hot.json?raw_json=1")
+        val url = URL("https://oauth.reddit.com/r/ft86/$sorting.json?raw_json=1")
         val connection = url.openConnection() as? HttpURLConnection
         if (connection != null) {
             connection.setRequestProperty("Authorization", "Bearer $accessToken")

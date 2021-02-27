@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">FT86 Pics</string>
     <string name="car_desc">Toyota 86 vehicle</string>
+    <string name="sort_hot">Hot</string>
+    <string name="sort_new">New</string>
+    <string name="sort_top">Top</string>
+    <string name="sort_rising">Rising</string>
 </resources>
