@@ -7,6 +7,9 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 
+/**
+ * Calls the Reddit REST API to obtain relevant data.
+ */
 object RedditApi {
     /** Reddit URL to get an access token. */
     private const val BASE_TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
@@ -59,8 +62,8 @@ object RedditApi {
         val connection = url.openConnection() as? HttpURLConnection
         if (connection != null) {
             connection.setRequestProperty("Authorization", "Bearer $accessToken")
-            val data = connection.inputStream.bufferedReader().use(BufferedReader::readText)
-            val json = JSONObject(data)
+            val response = connection.inputStream.bufferedReader().use(BufferedReader::readText)
+            val json = JSONObject(response)
             val children = json.getJSONObject("data").getJSONArray("children")
             for (i in 0 until children.length()) {
                 val post = children[i] as JSONObject
@@ -72,8 +75,14 @@ object RedditApi {
                 }
                 val data = post.getJSONObject("data")
                 val thumbnail = data.getString("thumbnail")
-                // If a thumbnail does not exist, then there are no images in the forum post.
-                if (!thumbnail.endsWith(".jpg")) {
+                // A thumbnail is present if there are images or videos in the forum post.
+                if (!thumbnail.isImage()) {
+                    continue
+                }
+                val images = loadImages(data)
+                // When the forum post contains only a video,
+                // a thumbnail still exists, but there are no images.
+                if (images.isEmpty()) {
                     continue
                 }
                 posts.add(
@@ -81,7 +90,7 @@ object RedditApi {
                         data.getString("thumbnail"),
                         data.getString("author"),
                         data.getString("title"),
-                        loadImages(data),
+                        images,
                         data.getInt("score"),
                         data.getInt("total_awards_received"),
                         data.getLong("created_utc")
@@ -93,11 +102,11 @@ object RedditApi {
     }
 
     /**
-     * Returns a URL for each image in the forum post.
+     * Returns a URL corresponding to each image in the forum post.
      */
     private fun loadImages(json: JSONObject): List<String> {
         val images = mutableListOf<String>()
-        if (json.getString("url").endsWith(".jpg")) {
+        if (json.getString("url").isImage()) {
             // The post is simply a standalone image.
             images.add(json.getString("url"))
         } else if (json.has("is_gallery")) {
@@ -115,5 +124,12 @@ object RedditApi {
             }
         }
         return images
+    }
+
+    /**
+     * @return True if the String has an image extension
+     */
+    private fun String.isImage(): Boolean {
+        return endsWith(".jpg") || endsWith(".png")
     }
 }

@@ -26,7 +26,7 @@ class PostRecyclerAdapter(
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
-        Picasso.get().load(post.thumbnail).into(holder.thumbnailImage)
+        Picasso.get().load(post.thumbnail).fit().centerCrop().into(holder.thumbnailImage)
         holder.titleText.text = post.title
         holder.scoreText.text = post.score.toString()
         holder.awardText.text = post.awards.toString()
