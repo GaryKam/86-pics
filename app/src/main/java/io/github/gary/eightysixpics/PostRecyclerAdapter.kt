@@ -15,16 +15,16 @@ import com.squareup.picasso.Picasso
 class PostRecyclerAdapter(
     private var posts: List<Post>,
     private val postItemListener: PostItemListener
-) : RecyclerView.Adapter<PostRecyclerAdapter.PostViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        return PostViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.item_post, parent, false),
+) : RecyclerView.Adapter<PostRecyclerAdapter.PostHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostHolder {
+        return PostHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_post, parent, false)
         )
     }
 
     override fun getItemCount() = posts.size
 
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: PostHolder, position: Int) {
         val post = posts[position]
         Picasso.get().load(post.thumbnail).fit().centerCrop().into(holder.thumbnailImage)
         holder.titleText.text = post.title
@@ -42,12 +42,12 @@ class PostRecyclerAdapter(
         notifyDataSetChanged()
     }
 
-    inner class PostViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
-        val thumbnailImage: ImageView = view.findViewById(R.id.image_thumbnail)
-        val titleText: TextView = view.findViewById(R.id.text_title)
-        val scoreText: TextView = view.findViewById(R.id.text_score)
-        val awardText: TextView = view.findViewById(R.id.text_award)
-        val awardImage: ImageView = view.findViewById(R.id.image_award)
+    inner class PostHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        val thumbnailImage: ImageView = itemView.findViewById(R.id.image_thumbnail)
+        val titleText: TextView = itemView.findViewById(R.id.text_title)
+        val scoreText: TextView = itemView.findViewById(R.id.text_score)
+        val awardText: TextView = itemView.findViewById(R.id.text_award)
+        val awardImage: ImageView = itemView.findViewById(R.id.image_award)
 
         init {
             itemView.setOnClickListener(this)

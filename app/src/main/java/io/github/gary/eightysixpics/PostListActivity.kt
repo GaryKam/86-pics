@@ -8,7 +8,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.databinding.DataBindingUtil
-import io.github.gary.eightysixpics.databinding.ActivityMainBinding
+import io.github.gary.eightysixpics.databinding.ActivityPostListBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -18,20 +18,20 @@ import java.util.*
  * Displays rows of forum posts.
  * Clicking a post will navigate to a [PostActivity].
  */
-class MainActivity : AppCompatActivity(), PostRecyclerAdapter.PostItemListener {
-    private lateinit var binding: ActivityMainBinding
+class PostListActivity : AppCompatActivity(), PostRecyclerAdapter.PostItemListener {
+    private lateinit var binding: ActivityPostListBinding
     private lateinit var posts: List<Post>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_post_list)
 
         GlobalScope.launch(Dispatchers.Default) {
             RedditApi.retrieveToken()
             posts = RedditApi.loadPosts()
 
             runOnUiThread {
-                binding.postsRecyclerView.adapter = PostRecyclerAdapter(posts, this@MainActivity)
+                binding.postsRecyclerView.adapter = PostRecyclerAdapter(posts, this@PostListActivity)
             }
         }
     }
