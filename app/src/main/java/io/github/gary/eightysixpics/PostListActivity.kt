@@ -1,7 +1,6 @@
 package io.github.gary.eightysixpics
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -62,9 +61,7 @@ class PostListActivity : AppCompatActivity(), PostRecyclerAdapter.PostItemListen
 
     override fun onClick(position: Int) {
         val post = posts[position]
-        val intent = Intent(this, PostActivity::class.java)
-        intent.putExtra("title", post.title)
-        intent.putExtra("images", post.images.toTypedArray())
+        val intent = PostActivity.newIntent(this, post.title, post.images.toTypedArray())
         startActivity(intent)
     }
 }
